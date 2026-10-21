@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "新增會員";
+}
+
+<div class="container mt-5 mb-5" style="max-width: 600px;">
+    <div class="card shadow-lg border-0 rounded-4 p-5" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(15px);">
+        <h3 class="fw-bold mb-4 text-center">✨ 新增會員</h3>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3 fw-bold"></div>
+
+            <div class="form-floating mb-3">
+                <input type="email" name="email" class="form-control" placeholder="name@example.com" required />
+                <label>電子郵件 (將作為登入帳號)</label>
+            </div>
+
+            <div class="form-floating mb-4 position-relative">
+                <input type="password" name="password" class="form-control pe-5" placeholder="密碼" required />
+                <label>設定密碼 (需包含大小寫英文、數字及符號)</label>
+                <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y toggle-password" type="button" style="z-index: 10;">👁️</button>
+            </div>
+
+            <div class="d-flex justify-content-between mt-5">
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">返回名單</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">🚀 建立帳號</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.parentElement.querySelector('input');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.textContent = '🙈';
+                } else {
+                    input.type = 'password';
+                    this.textContent = '👁️';
+                }
+            });
+        });
+    </script>
+}

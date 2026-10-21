@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Mvc_WatchLog.Models.Media>
+@{
+    ViewData["Title"] = "探索劇集";
+}
+
+<div class="text-center mt-5 mb-5">
+    <h2 class="fw-bold mb-3">🔍 探索媒體庫</h2>
+
+    <div class="row justify-content-center mt-4 mb-5">
+        <div class="col-md-8">
+            <form action="/Home/Search" method="get" class="d-flex shadow-sm rounded-pill overflow-hidden" style="border: 2px solid #74b9ff;">
+                <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control form-control-lg border-0 px-4 py-3" placeholder="想找哪部電影或影集？輸入劇名搜尋..." style="box-shadow: none;">
+                <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold border-0" style="border-radius: 0;">立刻搜尋</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var item in Model)
+        {
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body text-center py-4">
+                        <h5 class="fw-bold text-dark mb-2">@item.Title</h5>
+                        @if (!string.IsNullOrEmpty(item.Genre) && item.Genre != "未分類")
+                        {
+                            <span class="badge bg-secondary">@item.Genre</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else if (!string.IsNullOrEmpty(ViewBag.SearchString))
+    {
+        <div class="col-12 text-center py-5 mt-4">
+            <h4 class="text-muted fw-bold mb-3">找不到符合「@ViewBag.SearchString」的作品</h4>
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <a asp-controller="WatchRecord" asp-action="Create" class="btn btn-primary rounded-pill px-4 py-2 mt-2 shadow-sm">✨ 立刻幫它寫篇新日記</a>
+            }
+        </div>
+    }
+</div>

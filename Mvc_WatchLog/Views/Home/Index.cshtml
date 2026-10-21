@@ -1,8 +1,416 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model IEnumerable<Mvc_WatchLog.Models.WatchRecord>
+@{
+    ViewData["Title"] = "首頁 - 最新動態";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mt-5 mb-5">
+    <h1 class="display-5 fw-bold mb-3 neon-title">探索 WatchLog 🎬</h1>
+
+    <div class="welcome-container mt-3 mb-4">
+        <p class="dual-style-text">
+            你看過『某』部劇嗎？上次看的想法是什麼呢？<br />
+            快來 WatchLog 紀錄吧！
+        </p>
+    </div>
+
+    <div class="row justify-content-center mt-4">
+        <div class="position-relative w-100 mb-4" style="max-width: 600px;">
+            <form action="/Home/Index" method="get" id="homeSearchForm" class="d-flex shadow-sm rounded-pill overflow-hidden" style="border: 2px solid #ff7675;">
+                <input type="text" id="homeSearchInput" name="searchString" value="@ViewBag.SearchString" class="form-control border-0 px-4 py-3" placeholder="搜尋劇名，看看大家對這部劇的評價..." autocomplete="off" style="box-shadow: none; font-size: 1.1rem;">
+                <button type="submit" class="btn px-5 fw-bold border-0 text-white" style="background-color: #ff7675; border-radius: 0; font-size: 1.1rem;">搜尋</button>
+            </form>
+
+            <ul id="home-autocomplete-list" class="list-group position-absolute w-100 shadow-sm" style="display: none; z-index: 1000; top: 100%; left: 0; border-radius: 15px; overflow: hidden; backdrop-filter: blur(10px); margin-top: 8px;">
+            </ul>
+        </div>
+    </div>
 </div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="masonry-container">
+        @foreach (var item in Model)
+        {
+            <div class="card masonry-item shadow-sm border-0 mb-4" style="border-radius: 20px; background: rgba(255,255,255,0.9); overflow: hidden;">
+
+                @if (item.ShowPoster && !string.IsNullOrEmpty(item.Media?.PosterUrl))
+                {
+                    <img src="@item.Media.PosterUrl" class="card-img-top" alt="@item.Media.Title" loading="lazy" style="max-height: 350px; object-fit: cover; object-position: top;">
+                }
+                else if (item.ShowPoster)
+                {
+                    <div class="w-100 d-flex flex-column justify-content-center align-items-center text-muted" style="min-height: 200px; background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <span style="font-size: 2.5rem; opacity: 0.5;">🎞️</span>
+                        <small class="fw-bold mt-2" style="opacity: 0.7;">暫無官方海報 🥺</small>
+                    </div>
+                }
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <span class="badge rounded-pill px-3 py-2 shadow-sm" style="background-color: #74b9ff; font-size: 0.95rem;">
+                            🎬 @item.Media?.Title
+                        </span>
+                    </div>
+
+                    @if (item.HasSpoiler)
+                    {
+                        <div class="spoiler-container position-relative rounded p-3 mb-4" style="background: rgba(0,0,0,0.03); cursor: pointer;" onclick="this.classList.toggle('revealed')">
+                            <div class="spoiler-content" style="filter: blur(6px); transition: filter 0.4s ease;">
+                                <p class="card-text text-dark fw-medium mb-0" style="line-height: 1.7; font-size: 1.05rem;">
+                                    @item.Review
+                                </p>
+                            </div>
+                            <div class="spoiler-overlay position-absolute top-50 start-50 translate-middle text-center w-100">
+                                <span class="badge rounded-pill bg-danger px-3 py-2 shadow-sm" style="font-size: 0.9rem;">
+                                    ⚠️包含劇透，點擊查看
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="card-text text-dark fw-medium mb-4" style="line-height: 1.7; font-size: 1.05rem;">
+                            @item.Review
+                        </p>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+                        <div class="text-muted fw-bold small text-truncate" style="max-width: 70%;">
+                            <span style="color: #ff7675;">👤</span> @(item.User?.Email?.Split('@')[0] ?? "匿名")
+                        </div>
+                        <div class="text-secondary bg-light rounded-pill px-2 py-1 small fw-bold me-auto ms-2">
+                            @item.CreatedAt.ToString("MM/dd")
+                        </div>
+
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && User.Identity.Name == "admin@test.com")
+                        {
+                            <div class="d-flex align-items-center ms-2" style="cursor: not-allowed;" title="管理員無法按讚">
+                                <span class="fs-5 me-1">❤️</span>
+                                <span class="fw-bold text-muted" style="font-size: 0.9rem;">
+                                    @(item.Favorites?.Count ?? 0)
+                                </span>
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm border-0 like-btn p-0 d-flex align-items-center ms-2" data-id="@item.RecordId" style="transition: transform 0.2s;">
+                                <span class="heart-icon fs-5 me-1">🤍</span>
+                                <span class="like-count fw-bold text-muted" style="font-size: 0.9rem;">
+                                    @(item.Favorites?.Count ?? 0)
+                                </span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- 👇 2. 請把分頁程式碼完整貼在這裡 👇 -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Page navigation" class="mt-5 mb-4">
+            <ul class="pagination justify-content-center">
+
+                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link shadow-sm rounded-start-pill px-4 py-2" href="/Home/Index?page=@(ViewBag.CurrentPage - 1)&searchString=@ViewBag.SearchString">
+                        上一頁
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link shadow-sm px-4 py-2 @(i == ViewBag.CurrentPage ? "fw-bold" : "")" href="/Home/Index?page=@i&searchString=@ViewBag.SearchString">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link shadow-sm rounded-end-pill px-4 py-2" href="/Home/Index?page=@(ViewBag.CurrentPage + 1)&searchString=@ViewBag.SearchString">
+                        下一頁
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    }
+    <!-- 👆 分頁程式碼結束 👆 -->
+}
+else
+{
+    <div class="text-center py-5 mt-4">
+        <h3 class="text-muted fw-bold mb-3">😭 找不到與「@ViewBag.SearchString」相關的公開日記</h3>
+        <p class="text-secondary">這部劇目前還沒有人分享過心得喔！</p>
+        @if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            <a asp-controller="WatchRecord" asp-action="Create" class="btn rounded-pill px-4 py-2 mt-2 shadow text-white fw-bold" style="background-color: #74b9ff; border: none;">✨ 成為第一個寫評論的人</a>
+        }
+    </div>
+}
+
+@section Scripts {
+    <style>
+        /* 🌟 小紅書瀑布流核心 CSS (保留原本的) 🌟 */
+        .masonry-container {
+            column-count: 3;
+            column-gap: 1.5rem;
+        }
+
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+            .masonry-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            }
+
+        @@media (max-width: 992px) {
+            .masonry-container {
+                column-count: 2;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .masonry-container {
+                column-count: 1;
+            }
+        }
+
+        /* 👇 專屬標題魔法：單色螢光 ＋ 只有這裡用思源宋體 */
+        .neon-title {
+            color: #74b9ff; /* 這是字體本身的單色 (藍色)，妳可以隨時換成妳喜歡的顏色 */
+            text-shadow: 0 0 10px rgba(116, 185, 255, 0.8), 0 0 20px rgba(116, 185, 255, 0.6); /* 單色螢光發光感 */
+            font-family: 'Noto Serif TC', serif; /* 只有標題套用思源宋體 */
+            font-weight: 700;
+            display: inline-block;
+        }
+        /* ==========================================
+                            🌟 雙面風格文字特效 (預設：夢幻少女風) 🌟
+                            ========================================== */
+        .dual-style-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            line-height: 1.8;
+            /* 粉嫩馬卡龍漸層色 */
+            background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 4px 10px rgba(255, 154, 158, 0.4);
+            display: inline-block;
+        }
+
+            /* 🎀 少女風加點小裝飾 */
+            .dual-style-text::after {
+                content: ' ✨';
+                -webkit-text-fill-color: initial; /* 讓表情符號保持原本顏色 */
+            }
+
+        /* ==========================================
+                            💻 暗黑模式觸發 (駭客帥帥風)
+                            當使用者的系統或瀏覽器切換為深色模式時自動生效
+                            ========================================== */
+        @@media (prefers-color-scheme: dark) {
+            .dual-style-text {
+                background: none;
+                /* 駭客專屬螢光綠與終端機字型 */
+                -webkit-text-fill-color: #00ff00;
+                color: #00ff00;
+                font-family: 'Consolas', 'Courier New', monospace !important;
+                text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+                letter-spacing: 2px;
+            }
+                /* 模擬 Kali Linux 終端機閃爍的游標 */
+                .dual-style-text::after {
+                    content: ' _';
+                    -webkit-text-fill-color: #00ff00;
+                    animation: terminal-blink 1s step-end infinite;
+                }
+        }
+        /* 點擊解開防雷罩的特效 */
+        .spoiler-container.revealed .spoiler-content {
+            filter: blur(0) !important;
+        }
+
+        .spoiler-container.revealed .spoiler-overlay {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        /* 游標閃爍動畫 */
+        @@keyframes terminal-blink {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+        /* 智能預測選單的特效 (完美移植版) */
+        .autocomplete-item {
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .autocomplete-item:hover {
+                background: rgba(9, 132, 227, 0.1);
+                color: #0984e3;
+                font-weight: bold;
+            }
+
+        [data-theme="dark"] .autocomplete-item {
+            background: rgba(20, 30, 45, 0.95);
+            color: #ccc;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+            [data-theme="dark"] .autocomplete-item:hover {
+                background: rgba(0, 255, 204, 0.2);
+                color: #00ffcc;
+            }
+
+        .pagination .active .page-link {
+            background-color: #74b9ff;
+            border-color: #74b9ff;
+            color: white;
+        }
+
+        .pagination .page-link {
+            color: #333;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // ==========================================
+            // 🌟 功能一：TMDB 搜尋自動完成
+            // ==========================================
+            const searchInput = document.getElementById("homeSearchInput");
+            const autocompleteList = document.getElementById("home-autocomplete-list");
+            const searchForm = document.getElementById("homeSearchForm");
+
+            if(searchInput) {
+                searchInput.addEventListener("input", function () {
+                    const term = this.value;
+
+                    if (!term) {
+                        autocompleteList.style.display = "none";
+                        return;
+                    }
+
+                    // 呼叫 TMDB API
+                    const url = `@Url.Action("SearchTmdbMedia", "WatchRecord")?term=${encodeURIComponent(term)}`;
+
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            autocompleteList.innerHTML = "";
+
+                            const results = data.results.filter(m => m.media_type === 'movie' || m.media_type === 'tv').slice(0, 8);
+
+                            if (results.length > 0) {
+                                results.forEach(item => {
+                                    const title = item.title || item.name;
+                                    const date = item.release_date || item.first_air_date;
+                                    const year = date ? date.substring(0, 4) : '未知';
+
+                                    const li = document.createElement("li");
+                                    li.className = "list-group-item autocomplete-item px-4 py-3";
+                                    li.innerHTML = `<span class="fw-bold">${title}</span> <small class="text-muted ms-2">(${year})</small>`;
+
+                                    // 點擊選項時的動作
+                                    li.addEventListener("click", function () {
+                                        searchInput.value = title;
+                                        autocompleteList.style.display = "none";
+                                        // 點擊後直接自動送出搜尋表單！
+                                        searchForm.submit();
+                                    });
+
+                                    autocompleteList.appendChild(li);
+                                });
+                                autocompleteList.style.display = "block";
+                            } else {
+                                autocompleteList.style.display = "none";
+                            }
+                        });
+                });
+
+                // 點擊空白處關閉選單
+                document.addEventListener("click", function (e) {
+                    if (e.target !== searchInput) {
+                        autocompleteList.style.display = "none";
+                    }
+                });
+            }
+
+            // ==========================================
+            // ❤️ 功能二：AJAX 愛心按讚與收藏機制
+            // ==========================================
+            document.querySelectorAll('.like-btn').forEach(btn => {
+
+                // 滑鼠移上去的微動畫 (增加 UX 質感)
+                btn.addEventListener('mouseenter', () => btn.style.transform = 'scale(1.1)');
+                btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
+
+                // 點擊愛心事件
+                btn.addEventListener('click', async function () {
+                    const recordId = this.dataset.id;
+                    const icon = this.querySelector('.heart-icon');
+                    const countSpan = this.querySelector('.like-count');
+
+                    try {
+                        // 使用 fetch 發送非同步 POST 請求到後端 API
+                        const formData = new FormData();
+                        formData.append('recordId', recordId);
+
+                        const response = await fetch('/Home/ToggleLike', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // 🌟 點讚成功！直接改變畫面，不重新載入
+                            icon.textContent = data.isLiked ? '❤️' : '🤍';
+                            countSpan.textContent = data.count;
+
+                            // 加上微小的彈跳特效
+                            icon.style.transform = 'scale(1.3)';
+                            setTimeout(() => icon.style.transform = 'scale(1)', 200);
+                        } else {
+                            // 🚨 沒登入的情況：呼叫絕美 SweetAlert2 彈出視窗
+                            Swal.fire({
+                                title: '噢不！',
+                                text: data.message,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#ff7675',
+                                cancelButtonColor: '#b2bec3',
+                                confirmButtonText: '前往登入',
+                                cancelButtonText: '再逛逛',
+                                customClass: { popup: 'rounded-4' }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // 引導使用者去登入頁面
+                                    window.location.href = '/Identity/Account/Login';
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error('按讚時發生錯誤:', error);
+                    }
+                });
+            });
+
+        });
+    </script>
+}

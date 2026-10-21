@@ -1,0 +1,253 @@
+﻿@model Mvc_WatchLog.Models.WatchRecord
+
+@{
+    ViewData["Title"] = "寫下新日記";
+}
+
+<div class="container d-flex justify-content-center align-items-center mt-5 mb-5" style="min-height: 70vh;">
+    <div class="diary-card p-5 w-100 shadow-lg" style="max-width: 600px;">
+
+        <div class="text-center mb-4">
+            <h2 class="hero-subtitle mb-2" style="font-size: 2rem;">✨ 寫下你的觀影時光 ✨</h2>
+            <p class="text-muted small">這份回憶，將被 WatchLog 好好珍藏。</p>
+        </div>
+
+        <form asp-action="Create" method="post" id="diaryForm">
+
+            <div class="form-group mb-4 position-relative">
+                <label class="fw-bold mb-2">🎬 看了哪一部作品呢？</label>
+
+                <input type="text" id="mediaSearchInput" class="form-control form-control-lg rounded-pill px-4" placeholder="請輸入劇名 (例如：死亡筆記本)..." autocomplete="off" style="background-color: rgba(255, 255, 255, 0.5); backdrop-filter: blur(5px);" required />
+
+                <input type="hidden" name="NewMediaTitle" id="NewMediaTitle" />
+                <span asp-validation-for="MediaId" class="text-danger"></span>
+
+                <ul id="autocomplete-list" class="list-group position-absolute w-100 shadow-sm mt-1" style="display: none; z-index: 1000; border-radius: 15px; overflow: hidden; backdrop-filter: blur(10px);">
+                </ul>
+            </div>
+
+            <div class="form-group mb-4 text-center">
+                <label class="fw-bold mb-2 d-block">⭐ 給這部作品打個分數吧</label>
+                <input type="hidden" asp-for="Rating" id="ratingValue" value="5" />
+                <div class="star-rating" id="starContainer">
+                    <span class="star active" data-val="1">★</span>
+                    <span class="star active" data-val="2">★</span>
+                    <span class="star active" data-val="3">★</span>
+                    <span class="star active" data-val="4">★</span>
+                    <span class="star active" data-val="5">★</span>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Review" class="fw-bold mb-2">📝 妳的想法是什麼？</label>
+                <textarea asp-for="Review" class="form-control rounded-4 p-3" rows="5" placeholder="隨意碎碎念吧！不管是超好看還是大踩雷，都記錄下來..."></textarea>
+                <span asp-validation-for="Review" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-4 d-flex align-items-center justify-content-between p-3 rounded-pill" style="background: rgba(128,128,128,0.1);">
+                <div>
+                    <label class="fw-bold mb-0">公開這篇日記</label>
+                    <small class="d-block text-muted" style="font-size: 0.8rem;">關閉後，只有妳自己能在首頁看到它</small>
+                </div>
+                <div class="form-check form-switch fs-4">
+                    <input class="form-check-input" type="checkbox" asp-for="IsPublic" role="switch" checked>
+                </div>
+            </div>
+            <div class="form-group mb-4 d-flex align-items-center justify-content-between p-3 rounded-pill" style="background: rgba(128,128,128,0.1);">
+                <div>
+                    <label class="fw-bold mb-0">顯示官方海報</label>
+                    <small class="d-block text-muted" style="font-size: 0.8rem;">關閉後，這篇日記將以純文字風格呈現</small>
+                </div>
+                <div class="form-check form-switch fs-4">
+                    <input class="form-check-input" type="checkbox" asp-for="ShowPoster" role="switch">
+                </div>
+            </div>
+            <div class="form-group mb-4 d-flex align-items-center justify-content-between p-3 rounded-pill" style="background: rgba(255, 118, 117, 0.1);">
+                <div>
+                    <label class="fw-bold mb-0 text-danger">包含劇透 (防雷區)</label>
+                    <small class="d-block text-muted" style="font-size: 0.8rem;">開啟後，首頁的評論會被模糊處理，直到點擊才顯示</small>
+                </div>
+                <div class="form-check form-switch fs-4">
+                    <input class="form-check-input" type="checkbox" asp-for="HasSpoiler" role="switch">
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold w-100">封存這份記憶 💌</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <style>
+        /* 專屬玻璃卡片特效 */
+        .diary-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.4s ease;
+        }
+
+        [data-theme="dark"] .diary-card {
+            background: rgba(10, 15, 25, 0.7);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+        }
+
+        /* 互動式星星評分特效 */
+        .star-rating .star {
+            font-size: 2.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease;
+            margin: 0 5px;
+        }
+
+            .star-rating .star:hover {
+                transform: scale(1.2);
+            }
+
+            .star-rating .star.active {
+                color: #ffd700;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            }
+
+        [data-theme="dark"] .star-rating .star.active {
+            color: #00ffcc;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.8);
+        }
+
+        /* 智能預測選單的特效 */
+        .autocomplete-item {
+            background: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+            .autocomplete-item:hover {
+                background: rgba(9, 132, 227, 0.1);
+                color: var(--accent-color);
+                font-weight: bold;
+            }
+
+        [data-theme="dark"] .autocomplete-item {
+            background: rgba(20, 30, 45, 0.9);
+            color: #ccc;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+            [data-theme="dark"] .autocomplete-item:hover {
+                background: rgba(0, 255, 204, 0.2);
+                color: #00ffcc;
+            }
+    </style>
+
+    <script>
+        // TMDB 智能預測與表單防護魔法 (唯一乾淨版)
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // --- 1. 星星打分特效 ---
+            const stars = document.querySelectorAll(".star");
+            const ratingInput = document.getElementById("ratingValue");
+
+            stars.forEach(star => {
+                star.addEventListener("click", function () {
+                    const value = parseInt(this.getAttribute("data-val"));
+                    ratingInput.value = value;
+                    stars.forEach(s => {
+                        if (parseInt(s.getAttribute("data-val")) <= value) {
+                            s.classList.add("active");
+                        } else {
+                            s.classList.remove("active");
+                        }
+                    });
+                });
+            });
+
+            // --- 2. TMDB 智能搜尋特效 ---
+            const searchInput = document.getElementById("mediaSearchInput");
+            const hiddenTitleInput = document.getElementById("NewMediaTitle");
+            const autocompleteList = document.getElementById("autocomplete-list");
+
+            searchInput.addEventListener("input", function () {
+                const term = this.value;
+
+                if (!term) {
+                    autocompleteList.style.display = "none";
+                    hiddenTitleInput.value = "";
+                    return;
+                }
+
+                // 🌟 拿出妳的專屬金鑰，向全球最大的影視庫發送請求！
+                const url = `@Url.Action("SearchTMDBMedia", "WatchRecord")?term=${encodeURIComponent(term)}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        autocompleteList.innerHTML = "";
+
+                        // 只過濾出「電影 (movie)」或「影集 (tv)」
+                        const results = data.results.filter(m => m.media_type === 'movie' || m.media_type === 'tv').slice(0, 10);
+
+                        if (results.length > 0) {
+                            results.forEach(item => {
+                                // 電影用 title，影集用 name
+                                const title = item.title || item.name;
+                                // 抓取發行年份，讓選單看起來更專業
+                                const date = item.release_date || item.first_air_date;
+                                const year = date ? date.substring(0, 4) : '未知年份';
+
+                                const li = document.createElement("li");
+                                li.className = "list-group-item autocomplete-item px-4 py-3";
+                                li.innerHTML = `<span class="fw-bold">${title}</span> <small class="text-muted ms-2">(${year})</small>`;
+
+                                li.addEventListener("click", function () {
+                                    searchInput.value = title;
+                                    hiddenTitleInput.value = title; // 將正確的官方劇名存進隱藏欄位
+                                    autocompleteList.style.display = "none";
+                                });
+
+                                autocompleteList.appendChild(li);
+                            });
+                            autocompleteList.style.display = "block";
+                        } else {
+                            const li = document.createElement("li");
+                            li.className = "list-group-item px-4 py-3 text-muted";
+                            li.textContent = "TMDB 資料庫找不到這部作品 😢";
+                            autocompleteList.appendChild(li);
+                            autocompleteList.style.display = "block";
+                        }
+                    });
+            });
+
+            document.addEventListener("click", function (e) {
+                if (e.target !== searchInput) {
+                    autocompleteList.style.display = "none";
+                }
+            });
+
+            // --- 3. 表單送出前的防護罩 ---
+            document.getElementById("diaryForm").addEventListener("submit", function (e) {
+                if (!hiddenTitleInput.value) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '等一下！',
+                        text: '請從下方彈出的預測選單中，點擊選擇一部作品喔！',
+                        confirmButtonColor: '#0984e3',
+                        confirmButtonText: '好喔',
+                        customClass: { popup: 'rounded-4' }
+                    });
+                }
+            });
+        });
+    </script>
+}

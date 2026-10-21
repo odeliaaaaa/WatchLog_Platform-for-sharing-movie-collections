@@ -8,24 +8,83 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Mvc_WatchLog.styles.css" asp-append-version="true" />
 </head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if (TempData["SweetAlert"] != null)
+    {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                icon: 'info',
+                title: '哎呀！',
+                text: '@Html.Raw(TempData["SweetAlert"])',
+                confirmButtonColor: '#0984e3',
+                confirmButtonText: '好喔 ✨',
+                customClass: {
+                    popup: 'rounded-4'
+                }
+            });
+        });
+    </script>
+    }
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Mvc_WatchLog</a>
+                <a class="navbar-brand d-flex align-items-center" href="/Home/Index">
+                    <img src="~/images/WatchLogLogo-removebg-preview.png" alt="WatchLog Logo" class="brand-logo me-2">
+                    <span class="brand-text">WatchLog</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                    <ul class="navbar-nav flex-grow-1 align-items-center">
+
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && User.Identity.Name != "admin@test.com")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="WatchRecord" asp-action="MyDiary">我的日記</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark fw-bold" asp-area="" asp-controller="WatchRecord" asp-action="MyFavorites">我的收藏</a>
+                            </li>
+                            <li class="nav-item ms-3">
+                                <a class="btn btn-primary rounded-pill px-4 py-1 fw-bold shadow-sm d-flex align-items-center" asp-area="" asp-controller="WatchRecord" asp-action="Create" style="transition: transform 0.2s;">
+                                    寫日記
+                                </a>
+                            </li>
+                        }
+
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && User.Identity.Name == "admin@test.com")
+                        {
+                            <li class="nav-item ms-3">
+                                <a class="nav-link text-primary fw-bold" asp-area="" asp-controller="Media" asp-action="Index">
+                                    數據中心
+                                </a>
+                            </li>
+
+                            <li class="nav-item ms-2">
+                                <a class="nav-link text-danger fw-bold" asp-area="" asp-controller="Admin" asp-action="Index" style="border: 1px solid #dc3545; border-radius: 20px; padding: 5px 15px;">
+                                    會員管理
+                                </a>
+                            </li>
+                        }
+
                     </ul>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                        </ul>
+
+                        <partial name="_LoginPartial" />
+                        <ul class="navbar-nav flex-grow-1">
+                        </ul>
+
+                        <button id="theme-toggle" class="btn btn-sm btn-outline-secondary me-3">
+                            切換黑暗模式 🌙
+                        </button>
+                    </div>
                 </div>
             </div>
         </nav>

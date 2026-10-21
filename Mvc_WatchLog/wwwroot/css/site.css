@@ -1,22 +1,226 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap');
+
+/* =========================================
+   0. 終極排版修復 (Flexbox 魔法)
+========================================= */
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* 把整個網頁變成彈性空間，確保最小高度是整個螢幕 (100vh) */
 body {
-  margin-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0 !important;
+}
+
+    /* 讓網頁中間的內容區塊「自動伸展」，把頁尾用力往下擠 */
+    body > .container {
+        flex: 1 0 auto;
+        padding-bottom: 40px; /* 給底部留一點呼吸空間 */
+    }
+
+/* =========================================
+   1. 定義科技感與夢幻感主題變數
+========================================= */
+:root {
+    --text-color: #2c3e50;
+    --accent-color: #0984e3;
+}
+
+[data-theme="dark"] {
+    --text-color: #00ffcc;
+    --accent-color: #00ffcc;
+}
+
+/* =========================================
+   2. 全站漸層背景與游標設定 (保留小電視)
+========================================= */
+body {
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 50%, #ffe6ea 100%) !important;
+    background-attachment: fixed !important;
+    color: var(--text-color) !important;
+    transition: background 0.5s ease, color 0.4s ease;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size:24px;'><text y='24'>📺</text></svg>"), auto !important;
+}
+
+[data-theme="dark"] body {
+    background: linear-gradient(135deg, #0b0f19 0%, #0a192f 50%, #001a11 100%) !important;
+    background-attachment: fixed !important;
+}
+
+body:active {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' style='font-size:18px;'><text y='18'>📺</text></svg>"), auto !important;
+}
+
+/* =========================================
+   3. 按鈕與輸入框發光特效
+========================================= */
+.btn-primary {
+    background-color: transparent !important;
+    color: var(--accent-color) !important;
+    border: 1px solid var(--accent-color) !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    cursor: inherit;
+}
+
+    .btn-primary:hover {
+        background-color: var(--accent-color) !important;
+        color: var(--bg-color) !important;
+        box-shadow: 0 0 15px var(--accent-color);
+    }
+
+.form-control {
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--accent-color);
+}
+
+    .form-control:focus {
+        box-shadow: 0 0 10px rgba(9, 132, 227, 0.4) !important;
+        border-color: var(--accent-color) !important;
+    }
+
+[data-theme="dark"] .form-control:focus {
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.4) !important;
+}
+
+/* =========================================
+   4. 首頁大字漸層特效 (思源宋體)
+========================================= */
+.hero-title, .hero-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    transition: all 0.4s ease;
+}
+
+.hero-title {
+    font-weight: 900;
+    background: linear-gradient(45deg, #ff0844 0%, #ff758c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(255, 8, 68, 0.4), 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.hero-subtitle {
+    font-weight: 700;
+    background: linear-gradient(45deg, #ff0844 0%, #ffb199 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 12px rgba(255, 8, 68, 0.3);
+    letter-spacing: 2px;
+}
+
+[data-theme="dark"] .hero-title {
+    background: linear-gradient(45deg, #00ffcc 0%, #00b3ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(0, 255, 204, 0.6), 0 0 30px rgba(0, 255, 204, 0.3);
+}
+
+[data-theme="dark"] .hero-subtitle {
+    background: linear-gradient(45deg, #00ffcc 0%, #00b3ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+/* =========================================
+   5. 小紅書風格雙排瀑布流
+========================================= */
+.waterfall-container {
+    column-count: 2;
+    column-gap: 15px;
+    padding: 15px 0;
+}
+
+@media (max-width: 768px) {
+    .waterfall-container {
+        column-count: 1;
+    }
+}
+
+.review-card {
+    break-inside: avoid;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(255, 182, 193, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: inherit;
+}
+
+[data-theme="dark"] .review-card {
+    background: rgba(20, 30, 45, 0.7);
+    box-shadow: 0 8px 20px rgba(0, 255, 204, 0.1);
+    border: 1px solid rgba(0, 255, 204, 0.15);
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(255, 182, 193, 0.4);
+}
+
+[data-theme="dark"] .review-card:hover {
+    box-shadow: 0 12px 25px rgba(0, 255, 204, 0.3);
+}
+
+.auth-only {
+    display: none;
+}
+
+.user-logged-in .auth-only {
+    display: block;
+}
+
+/* =========================================
+   6. 頁尾 (Footer) 終極修正版
+========================================= */
+.footer {
+    position: static !important; /* 絕對禁止它亂飄 */
+    margin-top: auto !important; /* 自動推到最底下 */
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    background: transparent !important;
+    border-top: 1px solid rgba(128, 128, 128, 0.2) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .footer {
+    border-top: 1px solid rgba(0, 255, 204, 0.2) !important;
+}
+/* =========================================
+   7. 導覽列品牌 Logo 設定
+========================================= */
+.brand-logo {
+    height: 40px; /* 限制圖片高度，才不會把導覽列撐破 */
+    border-radius: 8px; /* 稍微給一點圓角，看起來更柔和 */
+    transition: all 0.3s ease;
+}
+
+.brand-text {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+/* 當切換到暗黑模式時，幫 Logo 加上一層淡淡的白光，防止黑色鏡框隱形 */
+[data-theme="dark"] .brand-logo {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.8); /* 墊一層微透的白色底 */
 }

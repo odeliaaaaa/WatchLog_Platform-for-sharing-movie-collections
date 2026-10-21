@@ -1,0 +1,93 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "會員登入";
+}
+
+<h1 class="mb-4 fw-bold">@ViewData["Title"]</h1>
+
+<div class="row align-items-start">
+    <div class="col-md-6 mb-4">
+        <section>
+            <div class="alert alert-info rounded-4 shadow-sm h-100 p-4" role="alert">
+                <h4 class="alert-heading fw-bold mb-3">👨‍🏫 測試帳號資訊：</h4>
+                <hr>
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <p class="mb-1 fw-bold text-danger fs-5">👑 管理員帳號</p>
+                        <p class="mb-1 text-muted small">(可看見所有圖表與會員資料)</p>
+                        <p class="mb-1">帳號：<code>admin@test.com</code></p>
+                        <p class="mb-0">密碼：<code>Iam987!</code></p>
+                    </div>
+                    <div class="col-12 border-top pt-4">
+                        <p class="mb-1 fw-bold text-primary fs-5">👤 一般使用者帳號</p>
+                        <p class="mb-1">帳號：<code>user@test.com</code></p>
+                        <p class="mb-0">密碼：<code>User987!</code></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-md-5 offset-md-1">
+        <section>
+            <form id="account" method="post" class="card shadow-sm border-0 rounded-4 p-4" style="background: rgba(255,255,255,0.9);">
+                <h3 class="fw-bold mb-3 text-center">請輸入 Email 與密碼</h3>
+                <hr class="mb-4" />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="請輸入 Email" />
+                    <label asp-for="Input.Email" class="form-label">Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3 position-relative">
+                    <input asp-for="Input.Password" class="form-control pe-5" autocomplete="current-password" aria-required="true" placeholder="請輸入密碼" />
+                    <label asp-for="Input.Password" class="form-label">密碼</label>
+                    <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y toggle-password" type="button" style="z-index: 10;">👁️</button>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="checkbox mb-4 ms-1">
+                    <label asp-for="Input.RememberMe" class="form-label form-check-label">
+                        <input class="form-check-input me-1" asp-for="Input.RememberMe" />
+                        記住我
+                    </label>
+                </div>
+
+                <div>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary rounded-pill fw-bold shadow-sm">🚀 登入系統</button>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <p class="mb-2">
+                        <a id="forgot-password" asp-page="./ForgotPassword" class="text-decoration-none text-muted">忘記密碼？</a>
+                    </p>
+                    <p class="mb-0">
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none fw-bold text-primary">還沒有帳號？點此註冊</a>
+                    </p>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.parentElement.querySelector('input');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.textContent = '🙈'; // 閉眼圖案
+                } else {
+                    input.type = 'password';
+                    this.textContent = '👁️'; // 睜眼圖案
+                }
+            });
+        });
+    </script>
+}

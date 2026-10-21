@@ -1,0 +1,63 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "註冊新帳號";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-5">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2>建立您的專屬帳號</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.Email">電子郵件 (Email)</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.UserName" class="form-control" aria-required="true" placeholder="請輸入暱稱" />
+                <label asp-for="Input.UserName">使用者名稱 (暱稱)</label>
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3 position-relative">
+                <input asp-for="Input.Password" class="form-control pe-5" autocomplete="new-password" aria-required="true" placeholder="請輸入密碼" />
+                <label asp-for="Input.Password">密碼</label>
+                <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y toggle-password" type="button" style="z-index: 10;">👁️</button>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3 position-relative">
+                <input asp-for="Input.ConfirmPassword" class="form-control pe-5" autocomplete="new-password" aria-required="true" placeholder="請再次輸入密碼" />
+                <label asp-for="Input.ConfirmPassword">確認密碼</label>
+                <button class="btn border-0 position-absolute end-0 top-50 translate-middle-y toggle-password" type="button" style="z-index: 10;">👁️</button>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mt-2">確認註冊</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const input = this.parentElement.querySelector('input');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.textContent = '🙈'; // 閉眼圖案
+                } else {
+                    input.type = 'password';
+                    this.textContent = '👁️'; // 睜眼圖案
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,133 @@
+﻿@model IEnumerable<Mvc_WatchLog.Models.Media>
+
+@{
+    ViewData["Title"] = "管理員數據中心";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">WatchLog 營運數據中心</h2>
+        <p class="text-muted"></p>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);">
+                <h5 class="fw-bold mb-3">🔥 討論度最高的前五名作品</h5>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0 rounded-4 p-4 h-100" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);">
+                <h5 class="fw-bold mb-3 text-center">🔒 隱私狀態分析</h5>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4 p-4" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(10px);">
+                <h5 class="fw-bold mb-3">📈 每日新增日記趨勢</h5>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        [data-theme="dark"] .card {
+            background: rgba(20, 30, 45, 0.8) !important;
+            color: #fff;
+        }
+
+        [data-theme="dark"] .table {
+            color: #fff;
+        }
+
+        [data-theme="dark"] .table-light {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 接收來自後台的資料 (加上防護罩避免沒資料時白畫面)
+            const labels = @Html.Raw(Json.Serialize(ViewBag.ChartLabels ?? new string[] { }));
+            const dataCounts = @Html.Raw(Json.Serialize(ViewBag.ChartData ?? new int[] { }));
+            const publicCount = @(ViewBag.PublicCount ?? 0);
+            const privateCount = @(ViewBag.PrivateCount ?? 0);
+            const lineLabels = @Html.Raw(Json.Serialize(ViewBag.LineLabels ?? new string[] { }));
+            const lineDataCounts = @Html.Raw(Json.Serialize(ViewBag.LineData ?? new int[] { }));
+
+            // 1. 繪製長條圖
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '日記篇數',
+                        data: dataCounts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+
+            // 2. 繪製圓餅圖
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['公開', '私人'],
+                    datasets: [{
+                        data: [publicCount, privateCount],
+                        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // 3. 繪製線形圖
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: lineLabels,
+                    datasets: [{
+                        label: '新增日記數',
+                        data: lineDataCounts,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.4, // 柔和波浪弧度
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        });
+    </script>
+}

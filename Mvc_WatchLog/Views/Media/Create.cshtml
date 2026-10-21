@@ -1,0 +1,57 @@
+﻿@model Mvc_WatchLog.Models.Media
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Media</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Type" class="control-label"></label>
+                <select asp-for="Type" class="form-control">
+                    <option value="">請選擇類型...</option>
+                    <option value="電影">電影 (Movie)</option>
+                    <option value="影集">影集 (Drama)</option>
+                    <option value="動漫">動漫 (Anime)</option>
+                    <option value="綜藝">綜藝 (Variety)</option>
+                </select>
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Genre" class="control-label"></label>
+                <select asp-for="Genre" class="form-control">
+                    <option value="">請選擇類型...</option>
+                    <option value="動作">動作 (Action)</option>
+                    <option value="喜劇">喜劇 (Comedy)</option>
+                    <option value="科幻">科幻 (Sci-Fi)</option>
+                    <option value="愛情">愛情 (Romance)</option>
+                    <option value="恐怖">恐怖 (Horror)</option>
+                    <option value="懸疑">懸疑 (Thriller)</option>
+                </select>
+                <span asp-validation-for="Genre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
