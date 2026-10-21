@@ -27,25 +27,25 @@ WatchLog 是使用 **ASP.NET Core MVC（C#）** 開發的影視觀影紀錄網�
 
 使用者可填寫作品、評分與心得，並設定公開狀態、海報顯示及劇透遮蔽。
 
-![新增觀影日記](docs/images/create-diary.png)
+![新增觀影日記](images/create-diary.png)
 
 ### 2. 劇透遮蔽效果
 
 啟用劇透遮蔽後，其他使用者會先看到提示，再自行選擇是否查看內容。
 
-![劇透遮蔽效果](docs/images/spoiler-preview.png)
+![劇透遮蔽效果](images/spoiler-preview.png)
 
 ### 3. 管理者營運數據中心
 
 提供熱門作品排行、公開狀態分析與日記新增趨勢等視覺化資訊。
 
-![管理者營運數據中心](docs/images/admin-dashboard.png)
+![管理者營運數據中心](images/admin-dashboard.png)
 
 ### 4. 會員管理中心
 
 提供會員搜尋、詳細資料、編輯與停權等管理操作。
 
-![會員管理中心](docs/images/member-management.png)
+![會員管理中心](images/member-management.png)
 
 ## 🧰 使用技術
 
